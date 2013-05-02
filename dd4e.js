@@ -312,6 +312,34 @@ var changeTHP = function (token, old) {
  * TRIGGERS
  ***************************************/
 
+on('ready', function () {
+/**
+ * New token handler (non-delegating).
+ * 
+ * @name    onTokenAdd
+ * @param   {Graphic}       token
+ * @return  {Void}
+ */
+on('add:token', function (token) {
+    debug('onAddToken (%s)', token.get('_id'));
+   
+    token.set({
+        "showname"                      : true,
+        "showplayers_name"              : true,
+        "showplayers_bar1"              : true,
+        "showplayers_bar2"              : true,
+        "showplayers_bar3"              : true,
+        "showplayers_aura1"             : true,
+        "showplayers_aura2"             : true,
+        "playersedit_name"              : true,
+        "playersedit_bar1"              : true,
+        "playersedit_bar2"              : true,
+        "playersedit_bar3"              : true,
+        "playersedit_aura1"             : true,
+        "playersedit_aura2"             : true
+   });
+});
+
 /**
  * Generic token change handler which delegates events to other handlers.
  *
@@ -369,4 +397,6 @@ on('chat:message', function (message) {
     else {
         warn('Attempted to call invalid command "%s".', command);
     }
+});
+ 
 });

@@ -47,13 +47,13 @@ var CONFIG = {
     INIT_ATTRIBUTE                      : 'Initiative',
 
     /** Log Output **/
-    DEBUG                               : true,
+    DEBUG                               : false,
     ERROR                               : true,
     NOTICE                              : true,
     WARN                                : true,
 
     /** Networking **/
-    LATENCY                             : 10 /* Milliseconds */
+    LATENCY                             : 100 /* Milliseconds */
 };
 
 /***************************************
@@ -77,6 +77,7 @@ var THP_BAR_LINK                        = ['_bar',  CONFIG.THP_BAR, '_link' ].jo
  * @name    debug
  * @param   {Mixed[]}       {...}
  * @return  {Void}
+ * @copyright               https://raw.github.com/joyent/node/master/LICENSE
  */
 var formatRegexp                        = /%[sdj%]/g;
 var format = function (f) {
@@ -86,7 +87,7 @@ var format = function (f) {
     if (typeof f !== 'string') {
         var objects                     = [];
         while (argl--) {
-            objects.push(args[i].toString());
+            objects.unshift(args[i].toString());
         }
 
         return objects.join(' ');
@@ -105,12 +106,14 @@ var format = function (f) {
         }
     });
 
-    for (var x = args[i]; i < argl; x = args[++i]) {
+    var x;
+    while (i++ < argl) {
+        x                               = args[i];
         if (x === null || typeof x !== 'object') {
-            str                         += ' ' + x;
+            str                         = [str, x].join(' ')
         }
         else {
-            str                         += ' ' + x.toString();
+            str                         += [str, x.toString()].join();
         }
     }
 
@@ -228,18 +231,6 @@ var setBar = function (token, bar, value) {setTimeout(function() {
         return;
     }
 
-    var link                            = token.get(['_bar', bar, '_link'].join(''));
-
-    if (link !== '') {
-        var attr                        = findObjs({_type : 'attribute', _id : link});
-
-        if (attr.length === 1) {
-            attr[0].set({current : value});
-        }
-        else {
-            warn('Could not find associated attribute for bar "%s" on token "%s".', bar, obj.get('_id'));
-        }
-    }
     token.set(['bar', bar, '_value'].join(''), value);
 
 }, CONFIG.LATENCY)};
@@ -315,14 +306,14 @@ var changeTHP = function (token, old) {
 on('ready', function () {
 /**
  * New token handler (non-delegating).
- * 
+ *
  * @name    onTokenAdd
  * @param   {Graphic}       token
  * @return  {Void}
  */
 on('add:token', function (token) {
     debug('onAddToken (%s)', token.get('_id'));
-   
+
     token.set({
         "showname"                      : true,
         "showplayers_name"              : true,
@@ -398,5 +389,6 @@ on('chat:message', function (message) {
         warn('Attempted to call invalid command "%s".', command);
     }
 });
- 
+
+notice('Started up at %s', (new Date).getTime());
 });

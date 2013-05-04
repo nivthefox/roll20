@@ -38,10 +38,10 @@ var CONFIG = {
     /** Hit Points **/
     HP_ATTRIBUTE                        : 'Hit Points',
     HP_BAR                              : 1,
-
-    /** Temporary Hit Points **/
     THP_ATTRIBUTE                       : 'Temporary Hit Points',
     THP_BAR                             : 3,
+    SURGE_ATTRIBUTE                     : 'Healing Surges',
+    SURGE_BAR                           : 2
 
     /** Initiative **/
     INIT_ATTRIBUTE                      : 'Initiative',
@@ -304,6 +304,21 @@ var changeTHP = function (token, old) {
  ***************************************/
 
 on('ready', function () {
+
+/**
+ * New character handler (non-delegating).
+ *
+ * @name    onTokenAdd
+ * @param   {Graphic}       token
+ * @return  {Void}
+ */
+on('add:character', function (character) {
+    createObj('attribute', {name : CONFIG.HP_ATTRIBUTE,     characterid : character.id});
+    createObj('attribute', {name : CONFIG.THP_ATTRIBUTE,    characterid : character.id});
+    createObj('attribute', {name : CONFIG.SURGE_ATTRIBUTe,  characterid : character.id});
+    createObj('attribute', {name : CONFIG.INIT_ATTRIBUTE,   characterid : character.id});
+});
+
 /**
  * New token handler (non-delegating).
  *
@@ -314,21 +329,23 @@ on('ready', function () {
 on('add:token', function (token) {
     debug('onAddToken (%s)', token.get('_id'));
 
-    token.set({
-        "showname"                      : true,
-        "showplayers_name"              : true,
-        "showplayers_bar1"              : true,
-        "showplayers_bar2"              : true,
-        "showplayers_bar3"              : true,
-        "showplayers_aura1"             : true,
-        "showplayers_aura2"             : true,
-        "playersedit_name"              : true,
-        "playersedit_bar1"              : true,
-        "playersedit_bar2"              : true,
-        "playersedit_bar3"              : true,
-        "playersedit_aura1"             : true,
-        "playersedit_aura2"             : true
-   });
+    if (token.get('_represents') != '') {
+        token.set({
+            "showname"                  : true,
+            "showplayers_name"          : true,
+            "showplayers_bar1"          : true,
+            "showplayers_bar2"          : true,
+            "showplayers_bar3"          : true,
+            "showplayers_aura1"         : true,
+            "showplayers_aura2"         : true,
+            "playersedit_bar1"          : true,
+            "playersedit_name"          : true,
+            "playersedit_bar2"          : true,
+            "playersedit_bar3"          : true,
+            "playersedit_aura1"         : true,
+            "playersedit_aura2"         : true
+       });
+    }
 });
 
 /**
@@ -367,13 +384,13 @@ on('chat:message', function (message) {
 
     while (word = words.shift()) {
         if (word.substr(0, 2) == '--') {
-            var arg                         = word.substring(2, word.indexOf('='));
-            var value                       = true;
+            var arg                     = word.substring(2, word.indexOf('='));
+            var value                   = true;
             if (word.indexOf('=') !== -1) {
-                value                       = word.substr(word.indexOf('=') + 1);
+                value                   = word.substr(word.indexOf('=') + 1);
             }
 
-            args[arg]                       = value;
+            args[arg]                   = value;
         }
         else {
             words.unshift(word);
@@ -389,6 +406,4 @@ on('chat:message', function (message) {
         warn('Attempted to call invalid command "%s".', command);
     }
 });
-
-notice('Started up at %s', (new Date).getTime());
 });

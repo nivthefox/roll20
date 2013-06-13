@@ -41,7 +41,7 @@ var CONFIG = {
     THP_ATTRIBUTE                       : 'Temporary Hit Points',
     THP_BAR                             : 3,
     SURGE_ATTRIBUTE                     : 'Healing Surges',
-    SURGE_BAR                           : 2
+    SURGE_BAR                           : 2,
 
     /** Initiative **/
     INIT_ATTRIBUTE                      : 'Initiative',

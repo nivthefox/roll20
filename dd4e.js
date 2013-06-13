@@ -256,6 +256,7 @@ var commands                            = {};
 var changeHP = function (token, old) {
     var current                         = parseInt(token.get(HP_BAR_VALUE));
     var previous                        = parseInt(old[HP_BAR_VALUE]);
+    var maximum                         = parseInt(token.get(HP_BAR_MAX));
     var thp                             = parseInt(token.get(THP_BAR_VALUE));
 
     debug('handleHPChange (%s, %d, %d, %d)', old._id, current, previous, thp);
@@ -273,6 +274,11 @@ var changeHP = function (token, old) {
 
         // TODO: If there is no bar, we may still have THP in Attributes on
         //       the Character which need changing.
+    }
+
+    // If the hit points are going up, we need to make sure they don't exceed the user's maximum.
+    else if (current > previous && current > maximum) {
+        setBar(token, CONFIG.HP_BAR, maximum);
     }
 };
 
@@ -315,7 +321,7 @@ on('ready', function () {
 on('add:character', function (character) {
     createObj('attribute', {name : CONFIG.HP_ATTRIBUTE,     characterid : character.id});
     createObj('attribute', {name : CONFIG.THP_ATTRIBUTE,    characterid : character.id});
-    createObj('attribute', {name : CONFIG.SURGE_ATTRIBUTe,  characterid : character.id});
+    createObj('attribute', {name : CONFIG.SURGE_ATTRIBUTE,  characterid : character.id});
     createObj('attribute', {name : CONFIG.INIT_ATTRIBUTE,   characterid : character.id});
 });
 
@@ -359,8 +365,8 @@ on('add:token', function (token) {
 on('change:token', function (token, previous) {
     debug('onChangeToken (%s)', previous._id);
 
-    if (isHPChange(token, previous) && hasTHP(token)) { changeHP(token, previous); }
-    if (isTHPChange(token, previous) && hasTHP(token)) { changeTHP(token, previous); }
+    if (isHPChange(token, previous)) { changeHP(token, previous); }
+    if (isTHPChange(token, previous)) { changeTHP(token, previous); }
 });
 
 /**
